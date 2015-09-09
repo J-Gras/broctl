@@ -8,7 +8,7 @@ import BroControl.plugin
 
 class TestPlugin(BroControl.plugin.Plugin):
     def __init__(self):
-        super(TestPlugin, self).__init__(apiversion=1)
+        super(TestPlugin, self).__init__(apiversion=2)
 
     def name(self):
         return "TestPlugin"
@@ -122,6 +122,9 @@ class TestPlugin(BroControl.plugin.Plugin):
     def cmd_install_pre(self):
         self.message("TestPlugin: Test pre 'install'")
         return True
+
+    def cmd_install_hook(self, id):
+        self.message("TestPlugin: Test 'install' hook: %s" % id)
 
     def cmd_install_post(self):
         self.message("TestPlugin: Test post 'install'")

@@ -1273,6 +1273,8 @@ class Controller:
         if local_only:
             return results
 
+        self.pluginregistry.cmdHook("install", "generate_config")
+
         # Sync to clients.
         self.ui.info("updating nodes ...")
 

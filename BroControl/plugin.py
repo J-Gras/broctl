@@ -36,6 +36,11 @@ class Plugin(object):
     corresponds to those nodes for which the command was actually executed
     (i.e., after any ``cmd_<XXX>_pre`` filtering).
 
+    API version 2 introduces the ``cmd_<XXX>_hook`` methods, which will be
+    called at specified points during the execution of a command. The hook
+    methods receive an argument indicating the point, where it was called.
+    The available hooks for each command are documented below.
+
     Note that if a plugin prevents a command from executing either completely or
     partially, it should report its reason via the ``message()`` or
     ``error()`` methods.
@@ -51,7 +56,11 @@ class Plugin(object):
 
     def __init__(self, apiversion):
         """Must be called by the plugin with the plugin API version it
-        expects to use. The version currently documented here is 1."""
+        expects to use. The version currently documented here is 2.
+
+        API version 2 is backwards compatible to plugins using API version 1.
+        Methods requiring version 2 are documented accordingly.
+        """
         self._apiversion = apiversion
         self.activated = False
 
@@ -456,6 +465,22 @@ class Plugin(object):
         implementation does nothing.
         """
         return True
+
+    @doc.api("override")
+    def cmd_install_hook(self, id):
+        """Called during the ``install`` command is run. The following hooks
+        are supported:
+
+            ``generate_config``
+                Called just after generating the scripts and before syncing them
+                to the nodes. Thus this can be used to generate further scripts.
+
+        This method can be overridden by derived classes. The default
+        implementation does nothing.
+
+        [requires API version 2]
+        """
+        pass
 
     @doc.api("override")
     def cmd_install_post(self):

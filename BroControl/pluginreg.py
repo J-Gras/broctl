@@ -10,7 +10,8 @@ from BroControl import node
 from BroControl import plugin
 
 # Note, when changing this, also adapt doc string for Plugin.__init__.
-_CurrentAPIVersion = 1
+_CurrentAPIVersion = 2
+_SupportedAPIVersions = [1, _CurrentAPIVersion]
 
 class PluginRegistry:
     def __init__(self):
@@ -109,6 +110,16 @@ class PluginRegistry:
                 result = False
 
         return result
+
+    def cmdHook(self, cmd, hook):
+        """Executes the ``cmd_<XXX>_hook`` function for a command taking a string
+        identifying the hook as its first argument.
+        """
+        method = "cmd_%s_hook" % cmd
+
+        for p in self._activeplugins():
+            func = getattr(p, method)
+            func(hook)
 
     def cmdPostWithNodes(self, cmd, nodes, *args):
         """Executes the ``cmd_<XXX>_post`` function for a command taking a list
@@ -223,7 +234,7 @@ class PluginRegistry:
                     cmdout.warn("failed to load plugin at %s because it doesn't override required methods" % path)
                     continue
 
-                if p.apiVersion() != _CurrentAPIVersion:
+                if p.apiVersion() not in _SupportedAPIVersions:
                     cmdout.warn("failed to load plugin %s due to incompatible API version (uses %d, but current is %s)"
                                   % (p.name(), p.apiVersion(), _CurrentAPIVersion))
                     continue
